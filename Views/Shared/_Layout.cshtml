@@ -1,0 +1,155 @@
+@{
+    string? cookieStudentName = Context.Request.Cookies["StudentName"];
+    string? sessionSelectedCourse = Context.Session.GetString("SelectedCourseName");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LearnSoft Online Courses</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/soft-ui.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container py-2">
+        <!-- Soft UI Header Navigation -->
+        <header>
+            <nav class="navbar navbar-expand-lg soft-navbar">
+                <div class="container-fluid">
+                    <a class="navbar-brand-soft" asp-controller="Course" asp-action="Index">
+                        <i class="bi bi-mortarboard-fill text-primary"></i> LearnSoft MVC
+                    </a>
+                    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSoftNav" aria-controls="navbarSoftNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="bi bi-list fs-3 text-primary"></i>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSoftNav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                            <li class="nav-item">
+                                <a class="nav-link-soft @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Course" asp-action="Index">
+                                    <i class="bi bi-grid-fill me-1"></i> Course Catalog
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link-soft @(ViewContext.RouteData.Values["action"]?.ToString() == "Users" ? "active" : "")" asp-controller="Course" asp-action="Users">
+                                    <i class="bi bi-people-fill me-1"></i> User Directory (Async)
+                                </a>
+                            </li>
+                        </ul>
+                        <!-- Cookie & Session Quick Info in Header -->
+                        <div class="d-flex align-items-center gap-2 flex-wrap mt-2 mt-lg-0">
+                            <button type="button" class="btn btn-soft text-decoration-none" data-bs-toggle="modal" data-bs-target="#cookieModal">
+                                <i class="bi bi-person-badge text-primary"></i>
+                                @if (!string.IsNullOrEmpty(cookieStudentName))
+                                {
+                                    <span>Cookie: <strong>@cookieStudentName</strong></span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Set Cookie Name</span>
+                                }
+                            </button>
+
+                            @if (!string.IsNullOrEmpty(sessionSelectedCourse))
+                            {
+                                <span class="soft-badge soft-badge-primary py-2 px-3">
+                                    <i class="bi bi-bookmark-check-fill"></i> Session: <strong>@sessionSelectedCourse</strong>
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrEmpty(cookieStudentName) || !string.IsNullOrEmpty(sessionSelectedCourse))
+                            {
+                                <a asp-controller="Course" asp-action="ClearState" class="btn btn-soft text-danger p-2" title="Clear State (Cookie & Session)">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Global State Status Bar -->
+        <div class="state-indicator-bar mb-4">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <small class="text-muted fw-bold text-uppercase"><i class="bi bi-diagram-3-fill me-1"></i> State Status:</small>
+                <span class="soft-badge">
+                    <i class="bi bi-cookie text-warning"></i> Cookie: <strong>@(string.IsNullOrEmpty(cookieStudentName) ? "Not Set" : cookieStudentName)</strong>
+                </span>
+                <span class="soft-badge">
+                    <i class="bi bi-hdd-network text-info"></i> Session Course: <strong>@(string.IsNullOrEmpty(sessionSelectedCourse) ? "None Selected" : sessionSelectedCourse)</strong>
+                </span>
+            </div>
+            <div>
+                <a class="btn btn-soft btn-sm text-secondary" asp-controller="Course" asp-action="ClearCache" title="Clear IMemoryCache">
+                    <i class="bi bi-arrow-clockwise"></i> Clear Cache
+                </a>
+            </div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="soft-card mb-4 border-start border-4 border-success p-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    <span class="fw-semibold">@TempData["SuccessMessage"]</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Main Content Body -->
+        <main role="main">
+            @RenderBody()
+        </main>
+
+        <!-- Soft UI Footer -->
+        <footer class="soft-card mt-5 py-4 text-center text-muted">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-md-start mb-2 mb-md-0">
+                    <p class="mb-0 fw-semibold text-secondary">&copy; 2026 LearnSoft MVC Application. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <span class="badge bg-light text-dark shadow-sm">ASP.NET Core MVC</span>
+                    <span class="badge bg-light text-dark shadow-sm">Response Caching</span>
+                    <span class="badge bg-light text-dark shadow-sm">IMemoryCache</span>
+                    <span class="badge bg-light text-dark shadow-sm">Soft UI</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Student Cookie Name Modal -->
+    <div class="modal fade" id="cookieModal" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content soft-card border-0">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="cookieModalLabel"><i class="bi bi-cookie text-warning me-2"></i> Student Cookie Management</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-controller="Course" asp-action="SaveStudentCookie" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                    <div class="modal-body py-4">
+                        <p class="text-muted small mb-3">Store your Student Name in an HTTP Cookie for automatic state recognition across the MVC portal.</p>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Student Name</label>
+                            <input type="text" name="studentName" class="soft-input" value="@cookieStudentName" placeholder="Enter student full name..." required />
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-soft-primary"><i class="bi bi-save me-1"></i> Save Cookie</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

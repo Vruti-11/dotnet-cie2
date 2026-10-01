@@ -1,0 +1,58 @@
+@using dotnet_cie2.Extensions
+@model dotnet_cie2.Models.Course
+
+@{
+    ViewData["Title"] = "Enrollment Confirmation";
+    string? cookieStudentName = ViewBag.StudentNameCookie;
+    string? sessionSelectedCourse = ViewBag.SelectedCourseSession;
+    decimal finalFees = Model != null ? Model.CalculateFinalFees() : 0m;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="soft-card text-center py-5">
+            <div class="icon-box-soft mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2.5rem; background: #ecfdf5; color: #10b981;">
+                <i class="bi bi-patch-check-fill"></i>
+            </div>
+
+            <h2 class="fw-bold mb-2">Enrollment Confirmed!</h2>
+            <p class="text-muted mb-4">Your registration has been processed and your session state has been updated.</p>
+
+            <div class="soft-inset text-start mx-auto mb-4" style="max-width: 550px;">
+                <h5 class="fw-bold mb-3 border-bottom pb-2 text-primary">Summary & Active State Audit</h5>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted"><i class="bi bi-person-circle me-1"></i> Student Name (Cookie):</span>
+                    <strong class="text-dark">@(string.IsNullOrEmpty(cookieStudentName) ? "Not Found" : cookieStudentName)</strong>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted"><i class="bi bi-journal-check me-1"></i> Selected Course (Session):</span>
+                    <strong class="text-dark">@(string.IsNullOrEmpty(sessionSelectedCourse) ? "Not Found" : sessionSelectedCourse)</strong>
+                </div>
+
+                @if (Model != null)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted"><i class="bi bi-tag me-1"></i> Course ID (Posted Hidden):</span>
+                        <strong class="text-dark">@Model.CourseId</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted"><i class="bi bi-calculator me-1"></i> Final Fees (Extension Method):</span>
+                        <strong class="text-success fs-5">$@finalFees.ToString("N2")</strong>
+                    </div>
+                }
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-controller="Course" asp-action="Index" class="btn btn-soft-primary">
+                    <i class="bi bi-grid-fill me-1"></i> Return to Catalog
+                </a>
+                <a asp-controller="Course" asp-action="Users" class="btn btn-soft text-primary">
+                    <i class="bi bi-people-fill me-1"></i> View Async User Directory
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

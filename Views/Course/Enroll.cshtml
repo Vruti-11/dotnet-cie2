@@ -1,0 +1,89 @@
+@using dotnet_cie2.Extensions
+@model dotnet_cie2.Models.EnrollmentViewModel
+
+@{
+    ViewData["Title"] = "Course Enrollment Form";
+    var course = Model.CourseDetails;
+    decimal finalFees = course != null ? course.CalculateFinalFees() : 0m;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <a asp-controller="Course" asp-action="Index" class="btn btn-soft text-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Catalog
+            </a>
+            <span class="soft-badge soft-badge-primary">
+                <i class="bi bi-shield-lock me-1"></i> Secure Form
+            </span>
+        </div>
+
+        <div class="soft-card">
+            <div class="text-center mb-4">
+                <div class="icon-box-soft mx-auto mb-3" style="width: 64px; height: 64px; font-size: 2rem;">
+                    <i class="bi bi-pen-fill text-primary"></i>
+                </div>
+                <h2 class="fw-bold mb-1">Enrollment Application</h2>
+                <p class="text-muted">Complete the form below to register for the course.</p>
+            </div>
+
+            @if (course != null)
+            {
+                <div class="soft-inset mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="fw-bold mb-1">@course.CourseName</h5>
+                            <span class="text-muted small"><i class="bi bi-clock me-1"></i> Duration: @course.Duration</span>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                            <small class="text-muted d-block">Final Amount Payable:</small>
+                            <span class="final-price fs-3">$@finalFees.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <form asp-controller="Course" asp-action="Enroll" method="post">
+                @Html.AntiForgeryToken()
+                
+                <!-- State Management Requirement: Hidden Field for CourseId -->
+                <input type="hidden" asp-for="CourseId" />
+
+                <!-- Banner highlighting Hidden Field requirement -->
+                <div class="alert alert-light border soft-inset py-2 px-3 mb-4 d-flex align-items-center justify-content-between">
+                    <small class="text-muted fw-bold">
+                        <i class="bi bi-eye-slash-fill text-primary me-1"></i> State Management (Hidden Field):
+                    </small>
+                    <code class="small">&lt;input type="hidden" name="CourseId" value="@Model.CourseId" /&gt;</code>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="StudentName" class="form-label fw-bold"></label>
+                    <div class="input-group">
+                        <input asp-for="StudentName" class="soft-input" placeholder="Enter your full name..." />
+                    </div>
+                    <span asp-validation-for="StudentName" class="text-danger small"></span>
+                    <small class="text-muted d-block mt-1">
+                        <i class="bi bi-cookie text-warning me-1"></i> Submitting this form will save your name into an HTTP Cookie.
+                    </small>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="StudentEmail" class="form-label fw-bold"></label>
+                    <input asp-for="StudentEmail" class="soft-input" placeholder="student@example.com" />
+                    <span asp-validation-for="StudentEmail" class="text-danger small"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-soft-primary py-3 fs-5">
+                        <i class="bi bi-check-circle-fill me-2"></i> Submit Enrollment (Post Hidden CourseId)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

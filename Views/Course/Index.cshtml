@@ -1,0 +1,95 @@
+@using dotnet_cie2.Extensions
+@model IEnumerable<dotnet_cie2.Models.Course>
+
+@{
+    ViewData["Title"] = "Course Catalog";
+    bool isFromCache = ViewBag.IsFromCache ?? false;
+    DateTime cacheTimestamp = ViewBag.CacheTimestamp ?? DateTime.Now;
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-7">
+        <h2 class="fw-bold mb-1"><i class="bi bi-journal-bookmark-fill text-primary me-2"></i> Online Course Catalog</h2>
+        <p class="text-muted mb-0">Browse our industry-leading technical courses and start learning today.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <!-- Caching Requirement Display: IMemoryCache -->
+        <div class="soft-card py-2 px-3 d-inline-block">
+            <small class="d-block text-muted fw-bold">
+                <i class="bi bi-memory me-1"></i> IMemoryCache (5-Min Expiration):
+            </small>
+            @if (isFromCache)
+            {
+                <span class="soft-badge soft-badge-success me-2">
+                    <i class="bi bi-lightning-charge-fill"></i> Loaded from Cache
+                </span>
+            }
+            else
+            {
+                <span class="soft-badge soft-badge-warning me-2">
+                    <i class="bi bi-database-down"></i> Fresh Cache Generated
+                </span>
+            }
+            <small class="text-secondary">@cacheTimestamp.ToString("HH:mm:ss")</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    @foreach (var course in Model)
+    {
+        decimal finalFees = course.CalculateFinalFees(); // Utilizing Extension Method
+
+        <div class="col-lg-4 col-md-6">
+            <div class="soft-card h-100 d-flex flex-column justify-content-between position-relative">
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="icon-box-soft">
+                            <i class="bi @course.Icon"></i>
+                        </div>
+                        <span class="soft-badge soft-badge-primary">@course.Category</span>
+                    </div>
+
+                    <h4 class="fw-bold mb-2">@course.CourseName</h4>
+                    <p class="text-muted small mb-3 text-truncate-3" style="min-height: 48px;">@course.Description</p>
+
+                    <div class="soft-inset mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small"><i class="bi bi-clock me-1"></i> Duration:</span>
+                            <span class="fw-bold">@course.Duration</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small"><i class="bi bi-speedometer2 me-1"></i> Level:</span>
+                            <span class="fw-bold">@course.Level</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small"><i class="bi bi-tag me-1"></i> Original Fee:</span>
+                            <span class="original-price">$@course.Fees.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Display Final Fees calculated via Extension Method -->
+                    <div class="d-flex align-items-center justify-content-between mb-3 pt-2 border-top">
+                        <div>
+                            <small class="text-muted d-block fw-bold">Final Fee (After @course.DiscountPercentage% Off):</small>
+                            <span class="final-price">$@finalFees.ToString("N2")</span>
+                        </div>
+                        <span class="discount-badge">Save $@course.GetDiscountAmount().ToString("N2")</span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <!-- Query String Requirement: Pass CourseId to details page via ?id=... -->
+                        <a asp-controller="Course" asp-action="Details" asp-route-id="@course.CourseId" class="btn btn-soft text-primary w-100">
+                            <i class="bi bi-info-circle me-1"></i> View Details (Query String)
+                        </a>
+                        <a asp-controller="Course" asp-action="Enroll" asp-route-courseId="@course.CourseId" class="btn btn-soft-primary w-100">
+                            <i class="bi bi-pen me-1"></i> Enroll Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
